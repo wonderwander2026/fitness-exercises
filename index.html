@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>健身动作大全 - 中文增强版</title>
+<style>
+:root {
+  --bg: #0f1117;
+  --bg2: #1a1d27;
+  --bg3: #252836;
+  --card: #1e2130;
+  --text: #e8e9ed;
+  --text2: #9a9bb5;
+  --accent: #4f8cff;
+  --accent2: #35b3a0;
+  --border: #2e3144;
+  --shadow: rgba(0,0,0,.35);
+  --radius: 12px;
+}
+[data-theme="light"] {
+  --bg: #f4f5f7;
+  --bg2: #fff;
+  --bg3: #eaecef;
+  --card: #fff;
+  --text: #1a1c24;
+  --text2: #6b6d80;
+  --accent: #2563eb;
+  --accent2: #059669;
+  --border: #d8daea;
+  --shadow: rgba(0,0,0,.1);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background:var(--bg); color:var(--text); transition: background .3s, color .3s; min-height:100vh; }
+/* Header */
+.header { background:var(--bg2); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100; backdrop-filter: blur(12px); }
+.header-inner { max-width:1440px; margin:auto; padding:12px 20px; display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+.logo { font-size:22px; font-weight:700; white-space:nowrap; background:linear-gradient(135deg,var(--accent),var(--accent2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; }
+.search-box { flex:1; min-width:200px; max-width:480px; position:relative; }
+.search-box input { width:100%; padding:10px 16px 10px 40px; border-radius:24px; border:1px solid var(--border); background:var(--bg3); color:var(--text); font-size:14px; outline:none; transition:.2s; }
+.search-box input:focus { border-color:var(--accent); box-shadow:0 0 0 3px rgba(79,140,255,.2); }
+.search-box::before { content:"🔍"; position:absolute; left:14px; top:50%; transform:translateY(-50%); font-size:14px; }
+.filter-group { display:flex; gap:8px; flex-wrap:wrap; align-items:center; }
+.filter-select { padding:8px 32px 8px 12px; border-radius:8px; border:1px solid var(--border); background:var(--bg3); color:var(--text); font-size:13px; cursor:pointer; appearance:none; -webkit-appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239a9bb5'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; }
+.theme-toggle { width:36px; height:36px; border-radius:50%; border:1px solid var(--border); background:var(--bg3); color:var(--text); font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:.2s; }
+.theme-toggle:hover { background:var(--accent); color:#fff; border-color:var(--accent); }
+/* Stats bar */
+.stats { max-width:1440px; margin:auto; padding:10px 20px; display:flex; justify-content:space-between; align-items:center; font-size:13px; color:var(--text2); }
+.stats span { display:flex; align-items:center; gap:6px; }
+.chip { padding:2px 8px; border-radius:10px; background:var(--bg3); font-size:12px; }
+.active-filters { display:flex; gap:6px; flex-wrap:wrap; }
+.clear-btn { padding:2px 10px; border-radius:10px; border:none; background:var(--accent); color:#fff; font-size:12px; cursor:pointer; transition:.2s; }
+.clear-btn:hover { opacity:.8; }
+/* Grid */
+.grid-container { max-width:1440px; margin:auto; padding:10px 20px 40px; }
+.grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(260px,1fr)); gap:16px; }
+.card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; cursor:pointer; transition:transform .25s ease, box-shadow .25s ease, border-color .25s ease; position:relative; }
+.card:hover { transform:translateY(-4px); box-shadow:0 8px 32px var(--shadow); border-color:var(--accent); }
+.card-img { width:100%; aspect-ratio:1/1; object-fit:cover; background:var(--bg3); display:block; }
+.card-body { padding:12px 14px; }
+.card-name { font-size:14px; font-weight:600; line-height:1.4; margin-bottom:6px; }
+.card-tags { display:flex; gap:6px; flex-wrap:wrap; }
+.tag { padding:2px 8px; border-radius:10px; font-size:11px; background:var(--bg3); color:var(--text2); }
+.tag-body { background:rgba(79,140,255,.15); color:var(--accent); }
+.tag-equip { background:rgba(53,179,160,.15); color:var(--accent2); }
+.no-results { text-align:center; padding:80px 20px; color:var(--text2); font-size:18px; }
+.no-results svg { width:80px; height:80px; margin-bottom:16px; opacity:.4; }
+/* Modal */
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,.65); z-index:200; display:none; align-items:center; justify-content:center; padding:20px; backdrop-filter:blur(4px); }
+.modal-overlay.active { display:flex; }
+.modal { background:var(--bg2); border-radius:16px; max-width:720px; width:100%; max-height:90vh; overflow-y:auto; border:1px solid var(--border); box-shadow:0 20px 64px rgba(0,0,0,.5); animation:modalIn .3s ease; }
+@keyframes modalIn { from{opacity:0;transform:scale(.92) translateY(20px)} to{opacity:1;transform:scale(1) translateY(0)} }
+.modal-header { padding:16px 20px; border-bottom:1px solid var(--border); display:flex; justify-content:space-between; align-items:center; position:sticky; top:0; background:var(--bg2); z-index:1; }
+.modal-title { font-size:18px; font-weight:700; }
+.modal-close { width:32px; height:32px; border-radius:50%; border:none; background:var(--bg3); color:var(--text); font-size:18px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:.2s; }
+.modal-close:hover { background:#ef4444; color:#fff; }
+.modal-gif { width:100%; aspect-ratio:1/1; object-fit:contain; background:#111; }
+.modal-img-placeholder { width:100%; aspect-ratio:1/1; display:flex; align-items:center; justify-content:center; background:var(--bg3); color:var(--text2); font-size:48px; }
+.modal-content { padding:20px; }
+.info-row { display:flex; flex-wrap:wrap; gap:10px; margin-bottom:20px; }
+.info-item { background:var(--bg3); padding:10px 14px; border-radius:10px; flex:1 1 180px; }
+.info-label { font-size:11px; color:var(--text2); text-transform:uppercase; letter-spacing:.5px; margin-bottom:4px; }
+.info-value { font-size:14px; font-weight:600; }
+.section-title { font-size:16px; font-weight:700; margin:20px 0 12px; display:flex; align-items:center; gap:8px; }
+.step-list { list-style:none; counter-reset:steps; }
+.step-list li { counter-increment:steps; padding:8px 0 8px 36px; position:relative; color:var(--text2); font-size:13px; line-height:1.6; }
+.step-list li::before { content:counter(steps); position:absolute; left:0; top:6px; width:24px; height:24px; border-radius:50%; background:var(--accent); color:#fff; font-size:12px; font-weight:700; display:flex; align-items:center; justify-content:center; }
+.lang-tabs { display:flex; gap:6px; margin-bottom:12px; }
+.lang-tab { padding:6px 14px; border-radius:8px; border:1px solid var(--border); background:transparent; color:var(--text2); font-size:13px; cursor:pointer; transition:.2s; }
+.lang-tab.active { background:var(--accent); color:#fff; border-color:var(--accent); }
+.instruction-box { padding:12px; background:var(--bg3); border-radius:10px; color:var(--text2); font-size:13px; line-height:1.7; }
+.instructions-step { padding:6px 0; border-bottom:1px solid var(--border); }
+.instructions-step:last-child { border-bottom:none; }
+.scroll-hint { color:var(--text2); font-size:12px; text-align:center; padding:8px; }
+/* Skeleton loading */
+.skeleton-card { background:var(--card); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+.skeleton-img { width:100%; aspect-ratio:1/1; background:linear-gradient(90deg,var(--bg3) 25%,var(--bg) 50%,var(--bg3) 75%); background-size:200% 100%; animation:shimmer 1.5s infinite; }
+.skeleton-body { padding:12px; }
+.skeleton-line { height:12px; border-radius:6px; background:linear-gradient(90deg,var(--bg3) 25%,var(--bg) 50%,var(--bg3) 75%); background-size:200% 100%; animation:shimmer 1.5s infinite; margin-bottom:8px; }
+.skeleton-line.short { width:60%; }
+@keyframes shimmer { 0%{background-position:200% 0} 100%{background-position:-200% 0} }
+/* Responsive */
+@media(max-width:768px) {
+  .header-inner { padding:10px 14px; }
+  .logo { font-size:18px; }
+  .search-box { min-width:100%; order:3; }
+  .filter-select { font-size:12px; padding:6px 28px 6px 10px; }
+  .grid { grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:10px; }
+  .card-body { padding:8px 10px; }
+  .card-name { font-size:12px; }
+  .modal { border-radius:12px; }
+  .modal-content { padding:14px; }
+}
+@media(max-width:480px) {
+  .grid { grid-template-columns:repeat(2,1fr); gap:8px; }
+  .stats { flex-direction:column; align-items:flex-start; gap:6px; }
+}
+/* Scrollbar */
+::-webkit-scrollbar { width:8px; }
+::-webkit-scrollbar-track { background:var(--bg); }
+::-webkit-scrollbar-thumb { background:var(--bg3); border-radius:4px; }
+::-webkit-scrollbar-thumb:hover { background:var(--accent); }
+</style>
+</head>
+<body data-theme="dark">
+
+<!-- Header -->
+<header class="header">
+  <div class="header-inner">
+    <div class="logo">💪 健身动作大全</div>
+    <div class="search-box">
+      <input type="text" id="searchInput" placeholder="搜索动作名称..." autocomplete="off">
+    </div>
+    <div class="filter-group">
+      <select class="filter-select" id="categoryFilter">
+        <option value="">全部部位</option>
+      </select>
+      <select class="filter-select" id="equipmentFilter">
+        <option value="">全部器械</option>
+      </select>
+      <button class="theme-toggle" id="themeToggle" title="切换主题">🌙</button>
+    </div>
+  </div>
+</header>
+
+<!-- Stats Bar -->
+<div class="stats">
+  <div class="active-filters" id="activeFilters"></div>
+  <span id="resultsInfo">加载中...</span>
+</div>
+
+<!-- Main Grid -->
+<main class="grid-container">
+  <div class="grid" id="exerciseGrid">
+    <!-- skeleton placeholders -->
+  </div>
+  <div class="no-results" id="noResults" style="display:none;">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+    <p>没有找到匹配的动作</p>
+    <p style="font-size:14px;margin-top:8px;color:var(--text2)">请尝试其他关键词或筛选条件</p>
+  </div>
+</main>
+
+<!-- Detail Modal -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal" id="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="modalTitle"></div>
+      <button class="modal-close" id="modalClose">✕</button>
+    </div>
+    <div id="modalGif"></div>
+    <div class="modal-content" id="modalContent"></div>
+  </div>
+</div>
+
+<script>
+// ========== Data & Translations ==========
+const EXERCISES_URL = './data/exercises.json';
+
+const CATEGORY_MAP = {
+  'upper arms': '上臂', 'lower arms': '前臂', 'chest': '胸部', 'back': '背部',
+  'waist': '腰部', 'shoulders': '肩部', 'upper legs': '大腿', 'lower legs': '小腿',
+  'cardio': '有氧', 'neck': '颈部'
+};
+
+const EQUIPMENT_MAP = {
+  'body weight': '自重', 'dumbbell': '哑铃', 'barbell': '杠铃', 'cable': '绳索',
+  'band': '弹力带', 'kettlebell': '壶铃', 'smith machine': '史密斯机',
+  'leverage machine': '固定器械', 'stability ball': '健身球', 'weighted': '负重',
+  'ez barbell': '弯曲杠铃', 'assisted': '辅助', 'bosu ball': '波速球',
+  'medicine ball': '药球', 'roller': '泡沫轴', 'tire': '轮胎',
+  'trap bar': '六角杠铃', 'wheel roller': '腹肌轮',
+  'stationary bike': '固定自行车', 'elliptical machine': '椭圆机',
+  'stepmill machine': '爬楼机', 'olympic barbell': '奥运杠铃',
+  'resistance band': '阻力带', 'skierg machine': '滑雪训练器',
+  'sled machine': '雪橇训练器', 'hammer': '锤', 'rope': '绳索'
+};
+
+const MUSCLE_MAP = {
+  'abs': '腹肌', 'hip flexors': '髋屈肌', 'lower back': '下背', 'obliques': '腹斜肌',
+  'quads': '股四头肌', 'hamstrings': '腘绳肌', 'glutes': '臀肌', 'calves': '小腿肌',
+  'chest': '胸大肌', 'front delts': '三角肌前束', 'lateral delts': '三角肌中束',
+  'rear delts': '三角肌后束', 'traps': '斜方肌', 'lats': '背阔肌',
+  'rhomboids': '菱形肌', 'biceps': '肱二头肌', 'triceps': '肱三头肌',
+  'forearms': '前臂肌', 'neck': '颈部肌群', 'core': '核心肌群',
+  'adductors': '内收肌', 'abductors': '外展肌', 'serratus': '前锯肌',
+  'erector spinae': '竖脊肌', 'soleus': '比目鱼肌', 'glute medius': '臀中肌',
+  'glute maximus': '臀大肌', 'glute minimus': '臀小肌',
+  'middle traps': ' middle斜方肌', 'upper traps': '上斜方肌'
+};
+
+function getTranslated(label, map) {
+  if (!label) return label;
+  return (map[label.toLowerCase()] || map[label] || label);
+}
+
+// ========== State ==========
+let exercises = [];
+let filteredExercises = [];
+let searchQuery = '';
+let selectedCategory = '';
+let selectedEquipment = '';
+
+// ========== DOM ==========
+const grid = document.getElementById('exerciseGrid');
+const searchInput = document.getElementById('searchInput');
+const categoryFilter = document.getElementById('categoryFilter');
+const equipmentFilter = document.getElementById('equipmentFilter');
+const themeToggle = document.getElementById('themeToggle');
+const resultsInfo = document.getElementById('resultsInfo');
+const activeFilters = document.getElementById('activeFilters');
+const noResults = document.getElementById('noResults');
+const modalOverlay = document.getElementById('modalOverlay');
+const modal = document.getElementById('modal');
+const modalClose = document.getElementById('modalClose');
+const modalTitle = document.getElementById('modalTitle');
+const modalGif = document.getElementById('modalGif');
+const modalContent = document.getElementById('modalContent');
+
+// ========== Init ==========
+async function init() {
+  renderSkeletons();
+  try {
+    const res = await fetch(EXERCISES_URL);
+    if (!res.ok) throw new Error('Data load failed');
+    exercises = await res.json();
+    populateFilters();
+    filterAndRender();
+  } catch(e) {
+    grid.innerHTML = `<div class="no-results" style="grid-column:1/-1"><p>❌ 数据加载失败</p><p style="font-size:14px;margin-top:8px;color:var(--text2)">${e.message}</p></div>`;
+    resultsInfo.textContent = '数据错误';
+  }
+}
+
+function renderSkeletons() {
+  let html = '';
+  for (let i = 0; i < 12; i++) {
+    html += `
+      <div class="skeleton-card">
+        <div class="skeleton-img"></div>
+        <div class="skeleton-body">
+          <div class="skeleton-line"></div>
+          <div class="skeleton-line short"></div>
+        </div>
+      </div>`;
+  }
+  grid.innerHTML = html;
+}
+
+function populateFilters() {
+  const categories = [...new Set(exercises.map(e => e.body_part || e.category))].sort();
+  const equipments = [...new Set(exercises.map(e => e.equipment))].sort();
+
+  categories.forEach(c => {
+    const opt = document.createElement('option');
+    opt.value = c;
+    opt.textContent = getTranslated(c, CATEGORY_MAP);
+    categoryFilter.appendChild(opt);
+  });
+
+  equipments.forEach(e => {
+    const opt = document.createElement('option');
+    opt.value = e;
+    opt.textContent = getTranslated(e, EQUIPMENT_MAP);
+    equipmentFilter.appendChild(opt);
+  });
+}
+
+// ========== Filtering ==========
+function filterAndRender() {
+  searchQuery = searchInput.value.trim().toLowerCase();
+  selectedCategory = categoryFilter.value;
+  selectedEquipment = equipmentFilter.value;
+
+  filteredExercises = exercises.filter(e => {
+    const nameMatch = !searchQuery || (e.name || '').toLowerCase().includes(searchQuery);
+    const catMatch = !selectedCategory || (e.body_part || '') === selectedCategory || (e.category || '') === selectedCategory;
+    const equipMatch = !selectedEquipment || (e.equipment || '') === selectedEquipment;
+    return nameMatch && catMatch && equipMatch;
+  });
+
+  updateActiveFilters();
+  renderCards(filteredExercises);
+  updateStats(filteredExercises.length);
+}
+
+function updateActiveFilters() {
+  let html = '';
+  if (searchQuery) html += `<span class="chip">搜索: ${searchQuery}</span>`;
+  if (selectedCategory) html += `<span class="chip">部位: ${getTranslated(selectedCategory, CATEGORY_MAP)}</span>`;
+  if (selectedEquipment) html += `<span class="chip">器械: ${getTranslated(selectedEquipment, EQUIPMENT_MAP)}</span>`;
+  if (html) html += `<button class="clear-btn" onclick="clearFilters()">清除</button>`;
+  activeFilters.innerHTML = html;
+}
+
+window.clearFilters = function() {
+  searchInput.value = '';
+  categoryFilter.value = '';
+  equipmentFilter.value = '';
+  filterAndRender();
+};
+
+function updateStats(count) {
+  const total = exercises.length;
+  const term = count === total ? '全部' : `${count} 个`;
+  resultsInfo.innerHTML = `共 <strong>${total}</strong> 个动作 · 显示 ${term}`;
+}
+
+// ========== Card Rendering ==========
+function renderCards(data) {
+  if (data.length === 0) {
+    grid.style.display = 'none';
+    noResults.style.display = 'block';
+    return;
+  }
+  grid.style.display = 'grid';
+  noResults.style.display = 'none';
+
+  // Lazy render: show up to 200 cards initially for performance
+  const limit = Math.min(data.length, 300);
+  let html = '';
+  for (let i = 0; i < limit; i++) {
+    const e = data[i];
+    const imgSrc = e.image ? `./${e.image}` : '';
+    const cat = e.body_part || e.category || '';
+    const equip = e.equipment || '';
+    html += `
+      <div class="card" onclick="openModal(${e.id})" data-id="${e.id}">
+        ${imgSrc
+          ? `<img class="card-img" src="${imgSrc}" alt="${escHtml(e.name)}" loading="lazy" onerror="this.outerHTML='<div class=\\'modal-img-placeholder\\'>🏋️</div>'">`
+          : `<div class="modal-img-placeholder">🏋️</div>`
+        }
+        <div class="card-body">
+          <div class="card-name">${escHtml(e.name)}</div>
+          <div class="card-tags">
+            <span class="tag tag-body">${getTranslated(cat, CATEGORY_MAP)}</span>
+            <span class="tag tag-equip">${getTranslated(equip, EQUIPMENT_MAP)}</span>
+          </div>
+        </div>
+      </div>`;
+  }
+  grid.innerHTML = html;
+  if (data.length > limit) {
+    grid.innerHTML += `<div class="no-results" style="grid-column:1/-1;padding:40px"><p>仅显示前 ${limit} 个结果（使用筛选缩小范围）</p></div>`;
+  }
+}
+
+// ========== Modal ==========
+function openModal(id) {
+  const e = exercises.find(x => x.id == id);
+  if (!e) return;
+
+  modalTitle.textContent = e.name;
+
+  // GIF display
+  if (e.gif_url) {
+    modalGif.innerHTML = `<img class="modal-gif" src="./${e.gif_url}" alt="${escHtml(e.name)}" onerror="this.outerHTML='<div class=\\'modal-img-placeholder\\'>🏋️ GIF不可用</div>'">`;
+  } else if (e.image) {
+    modalGif.innerHTML = `<img class="modal-gif" src="./${e.image}" alt="${escHtml(e.name)}" onerror="this.outerHTML='<div class=\\'modal-img-placeholder\\'>🏋️</div>'">`;
+  } else {
+    modalGif.innerHTML = '<div class="modal-img-placeholder">🏋️</div>';
+  }
+
+  // Target muscle
+  const target = e.target || '';
+  const muscleGroup = e.muscle_group || '';
+  const secondary = e.secondary_muscles || [];
+
+  // Instructions steps
+  const steps = e.instruction_steps || {};
+  const enSteps = steps.en || [];
+
+  let html = '';
+
+  // Info rows
+  html += `<div class="info-row">
+    <div class="info-item">
+      <div class="info-label">目标肌肉</div>
+      <div class="info-value">${getTranslated(target, MUSCLE_MAP) || '—'}</div>
+    </div>
+    <div class="info-item">
+      <div class="info-label">主要肌群</div>
+      <div class="info-value">${getTranslated(muscleGroup, MUSCLE_MAP) || '—'}</div>
+    </div>
+    <div class="info-item">
+      <div class="info-label">身体部位</div>
+      <div class="info-value">${getTranslated(e.body_part || '', CATEGORY_MAP)}</div>
+    </div>
+    <div class="info-item">
+      <div class="info-label">器械</div>
+      <div class="info-value">${getTranslated(e.equipment || '', EQUIPMENT_MAP)}</div>
+    </div>
+  </div>`;
+
+  // Secondary muscles
+  if (secondary.length) {
+    html += `<div class="section-title">🔹 辅助肌肉</div>`;
+    html += `<div class="info-row">`;
+    secondary.forEach(m => {
+      html += `<div class="info-item"><div class="info-value">${getTranslated(m, MUSCLE_MAP)}</div></div>`;
+    });
+    html += `</div>`;
+  }
+
+  // Instruction text
+  if (e.instructions && e.instructions.en) {
+    html += `<div class="section-title">📝 英文动作说明</div>`;
+    html += `<div class="instruction-box">${escHtml(e.instructions.en)}</div>`;
+  }
+
+  // Instruction steps in multiple languages with tabs
+  const availableLangs = Object.keys(steps).filter(k => k !== 'zh' && steps[k].length);
+  if (availableLangs.length > 0) {
+    html += `<div class="section-title">🗣️ 分步指令 <small style="font-size:12px;color:var(--text2);font-weight:400">(多语言)</small></div>`;
+    html += `<div class="lang-tabs">`;
+    const langNames = { en: 'English', it: 'Italiano', es: 'Español', tr: 'Türkçe' };
+    availableLangs.forEach(lang => {
+      const cls = lang === 'en' ? 'active' : '';
+      html += `<button class="lang-tab ${cls}" onclick="showLangSteps('${lang}')">${langNames[lang] || lang}</button>`;
+    });
+    html += `</div>`;
+
+    availableLangs.forEach(lang => {
+      const ls = steps[lang] || [];
+      const isEn = lang === 'en';
+      const style = isEn ? '' : 'style="display:none"';
+      html += `<div class="step-list" id="lang-steps-${lang}" ${style}>`;
+      ls.forEach(step => {
+        html += `<li>${escHtml(step)}</li>`;
+      });
+      html += `</div>`;
+    });
+  }
+
+  modalContent.innerHTML = html;
+  modalOverlay.classList.add('active');
+  document.body.style.overflow = 'hidden';
+
+  // Scroll to top of modal
+  modal.scrollTop = 0;
+}
+
+window.showLangSteps = function(lang) {
+  document.querySelectorAll('.step-list').forEach(el => el.style.display = 'none');
+  document.querySelectorAll('.lang-tab').forEach(btn => btn.classList.remove('active'));
+  const target = document.getElementById(`lang-steps-${lang}`);
+  if (target) target.style.display = 'block';
+  event.target.classList.add('active');
+};
+
+window.closeModal = function() {
+  modalOverlay.classList.remove('active');
+  document.body.style.overflow = '';
+};
+
+modalClose.addEventListener('click', closeModal);
+modalOverlay.addEventListener('click', e => {
+  if (e.target === modalOverlay) closeModal();
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+
+// ========== Theme Toggle ==========
+let isDark = true;
+themeToggle.addEventListener('click', () => {
+  isDark = !isDark;
+  document.body.dataset.theme = isDark ? 'dark' : 'light';
+  themeToggle.textContent = isDark ? '🌙' : '☀️';
+  localStorage.setItem('theme', isDark ? 'dark' : 'light');
+});
+
+// Restore theme
+const savedTheme = localStorage.getItem('theme');
+if (savedTheme) {
+  document.body.dataset.theme = savedTheme;
+  isDark = savedTheme === 'dark';
+  themeToggle.textContent = isDark ? '🌙' : '☀️';
+}
+
+// ========== Search / Filter Events ==========
+let debounceTimer;
+searchInput.addEventListener('input', () => {
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(filterAndRender, 200);
+});
+categoryFilter.addEventListener('change', filterAndRender);
+equipmentFilter.addEventListener('change', filterAndRender);
+
+// ========== Utilities ==========
+function escHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str || '';
+  return div.innerHTML;
+}
+
+// ========== Start ==========
+init();
+</script>
+
+</body>
+</html>
